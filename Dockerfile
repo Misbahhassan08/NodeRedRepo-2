@@ -31,10 +31,6 @@ RUN set -ex && \
 # Set work directory
 WORKDIR /usr/src/node-red
 
-# Setup SSH known_hosts file
-COPY known_hosts.sh .
-RUN ./known_hosts.sh /etc/ssh/ssh_known_hosts && rm /usr/src/node-red/known_hosts.sh
-
 # package.json contains Node-RED NPM module and node dependencies
 COPY package.json .
 COPY flows.json /data
@@ -45,7 +41,6 @@ FROM base AS build
 # Install Build tools
 RUN apk add --no-cache --virtual buildtools build-base linux-headers udev python && \
     npm install --unsafe-perm --no-update-notifier --no-fund --only=production && \
-    /tmp/remove_native_gpio.sh && \
     cp -R node_modules prod_node_modules
 
 #### Stage RELEASE #####################################################################################################
@@ -71,11 +66,6 @@ LABEL org.label-schema.build-date=${BUILD_DATE} \
     authors="Dave Conway-Jones, Nick O'Leary, James Thomas, Raymond Mouthaan"
 
 COPY --from=build /usr/src/node-red/prod_node_modules ./node_modules
-
-# Chown, install devtools & Clean up
-RUN chown -R node-red:root /usr/src/node-red && \
-    /tmp/install_devtools.sh && \
-    rm -r /tmp/*
 
 USER node-red
 
