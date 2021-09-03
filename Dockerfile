@@ -33,7 +33,9 @@ WORKDIR /usr/src/node-red
 
 # package.json contains Node-RED NPM module and node dependencies
 COPY package.json .
+COPY settings.js /data
 COPY flows.json /data
+COPY synapses-323217-7e43e1f22c00.json /data
 
 #### Stage BUILD #######################################################################################################
 FROM base AS build
@@ -77,6 +79,7 @@ ENV NODE_RED_VERSION=$NODE_RED_VERSION \
 
 # ENV NODE_RED_ENABLE_SAFE_MODE=true    # Uncomment to enable safe start mode (flows not running)
 # ENV NODE_RED_ENABLE_PROJECTS=true     # Uncomment to enable projects option
+RUN export GOOGLE_APPLICATION_CREDENTIALS="/data/synapses-323217-7e43e1f22c00.json"
 
 # Expose the listening port of node-red
 EXPOSE 1880
